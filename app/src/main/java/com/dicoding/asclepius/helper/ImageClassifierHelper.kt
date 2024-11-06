@@ -38,24 +38,24 @@ class ImageClassifierHelper(
     }
 
     init {
-        setupImageClassifier() // Initialize the classifier upon object creation
+        setupImageClassifier()
     }
 
     private fun setupImageClassifier() {
         try {
-            // Initialize BaseOptions for configuring the classifier
+
             val baseOptions = BaseOptions.builder()
-                .setNumThreads(4) // Set the number of threads to be used for inference
+                .setNumThreads(4)
                 .build()
 
-            // Configure the ImageClassifier options
+
             val options = ImageClassifier.ImageClassifierOptions.builder()
                 .setBaseOptions(baseOptions)
-                .setMaxResults(maxResults) // Limit to top N results
-                .setScoreThreshold(threshold) // Minimum confidence threshold
+                .setMaxResults(maxResults)
+                .setScoreThreshold(threshold)
                 .build()
 
-            // Create the ImageClassifier with the specified options
+
             classifier = ImageClassifier.createFromFileAndOptions(
                 context,
                 modelName,
@@ -72,7 +72,7 @@ class ImageClassifierHelper(
 
     fun classifyStaticImage(imageUri: Uri, contentResolver: ContentResolver) {
         try {
-            // Load the image from the URI
+
             val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 val source = ImageDecoder.createSource(contentResolver, imageUri)
                 ImageDecoder.decodeBitmap(source)
@@ -80,24 +80,24 @@ class ImageClassifierHelper(
                 MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
             }
 
-            // Resize bitmap to the correct input size (e.g., 224x224 for MobileNetV3)
+
             val resizedBitmap = Bitmap.createScaledBitmap(bitmap, 224, 224, true)
 
-            // Create a TensorImage from the resized bitmap
+
             val tensorImage = TensorImage.fromBitmap(resizedBitmap)
 
-            // Run inference using the classifier
+
             val classifications = classifier.classify(tensorImage)
 
-            // Assuming only one classification is done, extract the result
+
             val topResult = classifications.firstOrNull()?.categories?.firstOrNull()
             val label = topResult?.label ?: "Unknown"
             val confidence = topResult?.score ?: 0f
 
             println("Predicted Cancer: $label, Confidence: ${confidence * 100}%")
 
-            // Notify the listener of the results
-            classifierListener?.onResults(classifications, 0) // Pass results as needed
+
+            classifierListener?.onResults(classifications, 0)
 
         } catch (e: Exception) {
             classifierListener?.onError("Error classifying image: ${e.localizedMessage}")

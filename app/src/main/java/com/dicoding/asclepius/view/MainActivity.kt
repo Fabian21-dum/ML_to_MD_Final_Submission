@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Initialize the image classifier helper
+
         imageClassifierHelper = ImageClassifierHelper(
             context = this,
             classifierListener = object : ImageClassifierHelper.ClassifierListener {
@@ -37,12 +37,11 @@ class MainActivity : AppCompatActivity() {
                     val label = topResult?.label ?: "Unknown"
                     val confidence = topResult?.score ?: 0f
 
-                    // Move to ResultActivity with data
                     moveToResult(confidence)
                 }
 
                 override fun onError(error: String) {
-                    showToast("Error: $error")
+                    moveToResult(errorMessage = error)
                 }
             }
         )
@@ -79,16 +78,17 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // Call classifyStaticImage with the current image URI and the content resolver
+
         currentImageUri?.let {
             imageClassifierHelper.classifyStaticImage(it, contentResolver)
         }
     }
 
-    private fun moveToResult(confidence: Float) {
+    private fun moveToResult(confidence: Float = -1f, errorMessage: String? = null) {
         val intent = Intent(this, ResultActivity::class.java).apply {
             putExtra(ResultActivity.EXTRA_CONFIDENCE, confidence)
             putExtra(ResultActivity.EXTRA_IMAGE_URI, currentImageUri.toString())
+            putExtra(ResultActivity.EXTRA_ERROR_MESSAGE, errorMessage)
         }
         startActivity(intent)
     }

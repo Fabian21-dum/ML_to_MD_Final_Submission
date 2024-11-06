@@ -15,33 +15,37 @@ class ResultActivity : AppCompatActivity() {
         binding = ActivityResultBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Retrieve data from Intent
 
         val confidence = intent.getFloatExtra(EXTRA_CONFIDENCE, 0f)
         val imageUriString = intent.getStringExtra(EXTRA_IMAGE_URI)
+        val errorMessage = intent.getStringExtra(EXTRA_ERROR_MESSAGE)
 
-        // Display data
+
         imageUriString?.let {
             val imageUri = Uri.parse(it) // Convert string back to Uri
             binding.resultImage.setImageURI(imageUri) // Display the image in ImageView
         } ?: run {
-            // Optionally handle the case where the image URI is null
-            // You can set a placeholder image if desired
-            binding.resultImage.setImageResource(R.drawable.ic_place_holder) // Replace with your placeholder
-        }
-        val resultCancer = if (confidence < 0.57f){
-            "The Result Are: \nNon Cancer: ${"%.2f".format((confidence) * 100)}%"
-        }else{
-            "The Result Are: \nCancer: ${"%.2f".format(confidence * 100)}%"
-        }
-        binding.resultText.text = resultCancer
 
+            binding.resultImage.setImageResource(R.drawable.ic_place_holder)
+        }
+        if (errorMessage != null) {
+            binding.resultText.text = "Error processing the image: $errorMessage"
+        } else {
+            val resultCancer = if (confidence < 0.57f) {
+                "The Result Are: \nNon Cancer: ${"%.2f".format(confidence * 100)}%"
+            } else {
+                "The Result Are: \nCancer: ${"%.2f".format(confidence * 100)}%"
+            }
+            binding.resultText.text = resultCancer
+
+        }
     }
 
     companion object {
 
         const val EXTRA_CONFIDENCE = "extra_confidence"
         const val EXTRA_IMAGE_URI = "extra_image_uri"
+        const val EXTRA_ERROR_MESSAGE = "extra_error_message"
     }
     }
 
