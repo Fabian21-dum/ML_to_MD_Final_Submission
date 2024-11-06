@@ -29,7 +29,12 @@ class ResultActivity : AppCompatActivity() {
             // You can set a placeholder image if desired
             binding.resultImage.setImageResource(R.drawable.ic_place_holder) // Replace with your placeholder
         }
-        binding.resultText.text = "Cancer: ${"%.2f".format(confidence * 100)}%"
+        val resultCancer = if (confidence < 0.57f){
+            "The Result Are: \nNon Cancer: ${"%.2f".format((confidence) * 100)}%"
+        }else{
+            "The Result Are: \nCancer: ${"%.2f".format(confidence * 100)}%"
+        }
+        binding.resultText.text = resultCancer
 
     }
 
